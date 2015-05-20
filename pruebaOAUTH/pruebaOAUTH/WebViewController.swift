@@ -1,9 +1,13 @@
 import UIKit
 import OAuthSwift
 
-class WebViewController: OAuthWebViewController, UIWebViewDelegate {
+class WebViewController: UIViewController, UIWebViewDelegate {
     
-    var targetURL : NSURL = NSURL()
+    var targetURL: NSURL? {
+        didSet {
+            loadAddressURL()
+        }
+    }
     let webView : UIWebView = UIWebView()
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -16,17 +20,19 @@ class WebViewController: OAuthWebViewController, UIWebViewDelegate {
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
-    override func handle(url: NSURL) {
-        targetURL = url
-        super.handle(url)
-    }
+ 
     func loadAddressURL() {
-        let req = NSURLRequest(URL: targetURL)
-        self.webView.loadRequest(req)
+        if let url = targetURL {
+            let req = NSURLRequest(URL: url)
+            self.webView.loadRequest(req)
+        }
     }
+
     func webView(webView: UIWebView, shouldStartLoadWithRequest request: NSURLRequest, navigationType: UIWebViewNavigationType) -> Bool {
-        if (request.URL.scheme == "oauth-swift"){
-            self.dismissWebViewController()
+        if let url = request.URL where  url.scheme == "oauth-swift"{
+            self.dismissViewControllerAnimated(true, completion: { () -> Void in
+                 
+            })
         }
         return true
     }
