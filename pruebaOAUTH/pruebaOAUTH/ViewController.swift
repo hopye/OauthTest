@@ -15,10 +15,10 @@ let Instagram =
     "consumerSecret": "8541a64964f640f781fe2cac622a4c0e"
 ]
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, OAuthSwiftURLHandlerType {
 
     
-    
+    var urlToHandle: NSURL?
     
     @IBAction func loginInstagram(sender: AnyObject) {
        doOAuthInstagram()
@@ -35,7 +35,7 @@ class ViewController: UIViewController {
         )
         
         let state: String = generateStateWithLength(20) as String
-        oauthswift.authorize_url_handler = WebViewController()
+        oauthswift.authorize_url_handler = self
         oauthswift.authorizeWithCallbackURL( NSURL(string: "oauth-swift://oauth-callback/instagram")!, scope: "likes+comments", state:state, success: {
             credential, response in
           //  self.showAlertView("Instagram", message: "oauth_token:\(credential.oauth_token)")
@@ -65,7 +65,23 @@ class ViewController: UIViewController {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
+    
+    internal func handle(url: NSURL) {
+        self.urlToHandle = url
+        
+        self.performSegueWithIdentifier("oauth", sender: self)
+    }
 
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if segue.identifier == "oauth" {
+            if let webViewController = segue.destinationViewController as? WebViewController,
+                url = self.urlToHandle
+            {
+                
+                webViewController.targetURL = url
+            }
+        }
+    }
 
 }
 
